@@ -1,0 +1,14 @@
+{
+  "loginCredentials": {
+    "email": "testuser@example.com",
+    "password": "TestPassword123"
+  },
+  "userData": {
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "testuser@example.com",
+    "accountType": "Student",
+    "image": "https://api.dicebear.com/5.x/initials/svg?seed=Test%20User"
+  },
+  "instructions": "Use these credentials to login to the application. The user should already be created in the database after the first signup, or you can create it manually."
+}
