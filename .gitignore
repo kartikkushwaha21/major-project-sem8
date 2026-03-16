@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Production builds
+frontend/build/
+backend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Temporary folders
+tmp/
+temp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dummy data
+backend/dummy-login.json
+
+# Backend specific
+backend/node_modules/
+backend/.env
+
+# Frontend specific
+frontend/node_modules/
+frontend/.env
+frontend/build/
