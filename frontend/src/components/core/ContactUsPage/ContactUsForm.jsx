@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import {toast} from 'react-hot-toast'
-import CountryCode from "../../../data/countrycode.json"
+
 import { apiConnector } from "../../../services/apiConnector"
 import { contactusEndpoint } from "../../../services/apis"
 
+const inputClassName =
+  "w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+
+const errorClassName = "text-[12px] font-medium text-rose-500"
+
 const ContactUsForm = () => {
-  function toastGenerator(){
-    toast.success("Form submitted successfully");
-  }
   const [loading, setLoading] = useState(false)
   const {
     register,
@@ -18,21 +19,15 @@ const ContactUsForm = () => {
   } = useForm()
 
   const submitContactForm = async (data) => {
-    // console.log("Form Data - ", data)
     try {
       setLoading(true)
-      const res = await apiConnector(
-        "POST",
-        contactusEndpoint.CONTACT_US_API,
-        data
-      )
-      // console.log("Email Res - ", res)
+      await apiConnector("POST", contactusEndpoint.CONTACT_US_API, data)
       setLoading(false)
     } catch (error) {
       console.log("ERROR MESSAGE - ", error.message)
       setLoading(false)
     }
-  } 
+  }
 
   useEffect(() => {
     if (isSubmitSuccessful) {
@@ -48,12 +43,15 @@ const ContactUsForm = () => {
 
   return (
     <form
-      className="flex flex-col gap-7"
+      className="flex flex-col gap-6"
       onSubmit={handleSubmit(submitContactForm)}
     >
-      <div className="flex flex-col gap-5 lg:flex-row">
-        <div className="flex flex-col gap-2 lg:w-[48%]">
-          <label htmlFor="firstname" className="lable-style">
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label
+            htmlFor="firstname"
+            className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500"
+          >
             First Name
           </label>
           <input
@@ -61,17 +59,19 @@ const ContactUsForm = () => {
             name="firstname"
             id="firstname"
             placeholder="Enter first name"
-            className="form-style"
+            className={inputClassName}
             {...register("firstname", { required: true })}
           />
           {errors.firstname && (
-            <span className="-mt-1 text-[12px] text-yellow-100">
-              Please enter your name.
-            </span>
+            <span className={errorClassName}>Please enter your name.</span>
           )}
         </div>
-        <div className="flex flex-col gap-2 lg:w-[48%]">
-          <label htmlFor="lastname" className="lable-style">
+
+        <div className="space-y-2">
+          <label
+            htmlFor="lastname"
+            className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500"
+          >
             Last Name
           </label>
           <input
@@ -79,14 +79,17 @@ const ContactUsForm = () => {
             name="lastname"
             id="lastname"
             placeholder="Enter last name"
-            className="form-style"
+            className={inputClassName}
             {...register("lastname")}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 ">
-        <label htmlFor="email" className="lable-style ">
+      <div className="space-y-2">
+        <label
+          htmlFor="email"
+          className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500"
+        >
           Email Address
         </label>
         <input
@@ -94,18 +97,21 @@ const ContactUsForm = () => {
           name="email"
           id="email"
           placeholder="Enter email address"
-          className="form-style"
+          className={inputClassName}
           {...register("email", { required: true })}
         />
         {errors.email && (
-          <span className="-mt-1 text-[12px] text-yellow-100">
-            Please enter your Email address.
+          <span className={errorClassName}>
+            Please enter your email address.
           </span>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="message" className="lable-style">
+      <div className="space-y-2">
+        <label
+          htmlFor="message"
+          className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500"
+        >
           Message
         </label>
         <textarea
@@ -114,27 +120,24 @@ const ContactUsForm = () => {
           cols="30"
           rows="7"
           placeholder="Enter your message here"
-          className="form-style"
+          className={`${inputClassName} resize-none`}
           {...register("message", { required: true })}
         />
         {errors.message && (
-          <span className="-mt-1 text-[12px] text-yellow-100">
-            Please enter your Message.
-          </span>
+          <span className={errorClassName}>Please enter your message.</span>
         )}
       </div>
 
       <button
         disabled={loading}
         type="submit"
-        className={`rounded-md bg-caribbeangreen-100 px-6 py-3 text-center text-[13px] font-bold text-white shadow-[2px_2px_0px_0px_rgba(255,255,255,0.18)] 
-         ${
-           !loading &&
-           "transition-all duration-200 hover:scale-95 hover:shadow-none"
-         }  disabled:bg-richblack-500 sm:text-[16px] `}
-         
+        className={`inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold text-white transition-all duration-200 ${
+          loading
+            ? "cursor-not-allowed bg-slate-400"
+            : "bg-indigo-600 shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 hover:bg-indigo-500"
+        }`}
       >
-        Send Message
+        {loading ? "Sending..." : "Send Message"}
       </button>
     </form>
   )

@@ -1,23 +1,28 @@
-import React from "react";
-import ContactUsForm from "./ContactUsForm";
-import HighlightText from "../HomePage/HighlightText";
+import React from "react"
+
+import ContactUsForm from "./ContactUsForm"
 
 const ContactForm = () => {
   return (
-    <div className="border border-richblack-600 text-richblack-300 rounded-xl p-7 lg:p-14 flex gap-3 flex-col">
-      <h1 className="text-4xl leading-10 font-semibold text-black">
-       <HighlightText text={"Contact Us"}></HighlightText> 
-      </h1>
-      <p className="">
-        Tell us what you got in mind ?
-      </p>
+    <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:p-10">
+      <div className="max-w-2xl space-y-4">
+        <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+          Send a Message
+        </p>
+        <h2 className="text-3xl font-semibold tracking-[-0.03em] text-slate-950 md:text-4xl">
+          Tell us what you have in mind
+        </h2>
+        <p className="text-sm leading-7 text-slate-600">
+          Use the same contact workflow as before. We&apos;ve only redesigned the
+          presentation to feel cleaner and more professional.
+        </p>
+      </div>
 
-      <div className="mt-7">
+      <div className="mt-8">
         <ContactUsForm />
       </div>
-      {/* <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1718.5889549396381!2d76.6575015887491!3d30.51600800436314!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fc32344a6e2d7%3A0x81b346dee91799ca!2sChitkara%20University!5e0!3m2!1sen!2sin!4v1745908070471!5m2!1sen!2sin" width="400" height="300"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> */}
     </div>
-  );
-};
+  )
+}
 
-export default ContactForm;
+export default ContactForm

@@ -18,16 +18,20 @@ export default function DeleteAccount() {
   }
 
   return (
-    <>
-      <div className="my-10 flex flex-row gap-x-5 rounded-md border-[1px] border-pink-700 bg-pink-900 p-8 px-12">
-        <div className="flex aspect-square h-14 w-14 items-center justify-center rounded-full bg-pink-700">
-          <FiTrash2 className="text-3xl text-pink-200" />
+    <section className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:p-8">
+      <div className="flex flex-col gap-5 md:flex-row md:items-start">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+          <FiTrash2 className="text-3xl" />
         </div>
-        <div className="flex flex-col space-y-2">
-          <h2 className="text-lg font-semibold text-richblack-5">
+
+        <div className="space-y-3">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-rose-500">
+            Danger Zone
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
             Delete Account
           </h2>
-          <div className="w-3/5 text-pink-25">
+          <div className="max-w-2xl space-y-1 text-sm leading-7 text-slate-600">
             <p>Would you like to delete account?</p>
             <p>
               This account may contain Paid Courses. Deleting your account is
@@ -36,13 +40,13 @@ export default function DeleteAccount() {
           </div>
           <button
             type="button"
-            className="w-fit cursor-pointer italic text-pink-300"
+            className="pt-2 text-sm font-semibold italic text-rose-600 transition-colors duration-200 hover:text-rose-500"
             onClick={handleDeleteAccount}
           >
             I want to delete my account.
           </button>
         </div>
       </div>
-    </>
+    </section>
   )
 }
