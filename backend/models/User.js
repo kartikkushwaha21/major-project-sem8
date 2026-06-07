@@ -67,6 +67,16 @@ const userSchema = new mongoose.Schema(
         ref: "courseProgress",
       },
     ],
+    totalEarnings: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalStudentsTaught: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
     // Add timestamps for when the document is created and last modified
   },

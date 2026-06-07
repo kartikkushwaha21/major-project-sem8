@@ -5,11 +5,13 @@ import { useParams } from "react-router-dom"
 // import CourseCard from "../components/Catalog/CourseCard"
 // import CourseSlider from "../components/Catalog/CourseSlider"
 import Footer from "../components/Common/Footer"
-import Course_Card from "../components/core/Catalog/Course_Card"
-import Course_Slider from "../components/core/Catalog/Course_Slider"
+import AIRecommendations from "../components/core/Catalog/AIRecommendations"
+import CourseCard from "../components/core/Catalog/Course_Card"
+import CourseSlider from "../components/core/Catalog/Course_Slider"
 import { apiConnector } from "../services/apiConnector"
 import { categories } from "../services/apis"
 import { getCatalogPageData } from "../services/operations/pageAndComponntDatas"
+import { getRecommendedCourses } from "../utils/courseRecommendations"
 import Error from "./Error"
 
 function Catalog() {
@@ -23,7 +25,10 @@ function Catalog() {
     ;(async () => {
       try {
         const res = await apiConnector("GET", categories.CATEGORIES_API)
-        const category_id = res?.data?.data?.filter(
+        const availableCategories = (res?.data?.data || []).filter(
+          (category) => category?.courses?.length > 0
+        )
+        const category_id = availableCategories.filter(
           (ct) => ct.name === catalogName
         )[0]._id
         setCategoryId(category_id)
@@ -56,10 +61,20 @@ function Catalog() {
     return <Error />
   }
 
+  const selectedCategoryCourses = catalogPageData?.data?.selectedCategory?.courses || []
+  const differentCategoryCourses = catalogPageData?.data?.differentCategory?.courses || []
+  const mostSellingCourses = catalogPageData?.data?.mostSellingCourses || []
+  const baseCourse = selectedCategoryCourses[0] || mostSellingCourses[0] || null
+  const recommendedCourses = getRecommendedCourses({
+    courses: [...selectedCategoryCourses, ...differentCategoryCourses, ...mostSellingCourses],
+    baseCourse,
+    limit: 4,
+  })
+
   return (
     <>
       {/* Hero Section */}
-      <div className=" box-content bg-richblack-800 px-4">
+      <div className="box-content bg-richblack-900 px-4">
         <div className="mx-auto flex min-h-[260px] max-w-maxContentTab flex-col justify-center gap-4 lg:max-w-maxContent ">
           <p className="text-sm text-richblack-300">
             {`Home / Catalog / `}
@@ -77,16 +92,20 @@ function Catalog() {
       </div>
 
       {/* Section 1 */}
-      <div className=" mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
-        <div className="section_heading ">
-          <p className="text-black">Courses to get you started</p>
+      <div className="mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
+        <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:p-8">
+          <div className="flex flex-col gap-2">
+            <p className="text-3xl font-bold text-slate-900">Courses to get you started</p>
+            <p className="text-base text-slate-600">
+              Start with the most relevant courses in {catalogPageData?.data?.selectedCategory?.name}.
+            </p>
           </div>
-        <div className="my-4 flex border-b border-b-richblack-600 text-sm">
+        <div className="my-6 flex border-b border-b-slate-200 text-sm">
           <p
             className={`px-4 py-2 ${
               active === 1
-                ? "border-b border-b-yellow-25 text-caribbeangreen-50"
-                : "text-black"
+                ? "border-b border-b-indigo-500 text-indigo-700"
+                : "text-slate-600"
             } cursor-pointer`}
             onClick={() => setActive(1)}
           >
@@ -95,8 +114,8 @@ function Catalog() {
           <p
             className={`px-4 py-2 ${
               active === 2
-                ? "border-b border-b-yellow-25 text-caribbeangreen-50"
-                : "text-black"
+                ? "border-b border-b-indigo-500 text-indigo-700"
+                : "text-slate-600"
             } cursor-pointer`}
             onClick={() => setActive(2)}
           >
@@ -104,36 +123,53 @@ function Catalog() {
           </p>
         </div>
         <div>
-          <Course_Slider
-            Courses={catalogPageData?.data?.selectedCategory?.courses}
-          />
+          <CourseSlider Courses={selectedCategoryCourses} />
+        </div>
         </div>
       </div>
+
+      <div className="mx-auto box-content w-full max-w-maxContentTab px-4 py-2 lg:max-w-maxContent">
+        <AIRecommendations
+          title={`Best courses to buy in ${catalogPageData?.data?.selectedCategory?.name}`}
+          description="These picks are ranked with an AI-style scoring model using category match, learner ratings, popularity, lesson depth, and price fit so users can quickly see the strongest options."
+          courses={recommendedCourses}
+          emptyMessage="Add more published courses to this catalog to unlock AI suggestions."
+        />
+      </div>
+
       {/* Section 2 */}
-      <div className=" mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
-        <div className="section_heading">
-          <h1 className="text-black">Top courses in {catalogPageData?.data?.differentCategory?.name}</h1>
+      <div className="mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
+        <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:p-8">
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold text-slate-900">Top courses in {catalogPageData?.data?.differentCategory?.name}</h1>
+          <p className="mt-2 text-base text-slate-600">
+            Explore adjacent skills users often compare before buying.
+          </p>
         </div>
         <div className="py-8">
-          <Course_Slider
-            Courses={catalogPageData?.data?.differentCategory?.courses}
-          />
+          <CourseSlider Courses={differentCategoryCourses} />
+        </div>
         </div>
       </div>
 
       {/* Section 3 */}
-      <div className=" mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
-        <div className="section_heading">
-          <p className="text-black">Frequently Bought</p>
+      <div className="mx-auto box-content w-full max-w-maxContentTab px-4 py-12 lg:max-w-maxContent">
+        <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:p-8">
+        <div className="mb-4">
+          <p className="text-3xl font-bold text-slate-900">Frequently Bought</p>
+          <p className="mt-2 text-base text-slate-600">
+            These are the strongest commercial performers across the platform.
+          </p>
         </div>
         <div className="py-8">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {catalogPageData?.data?.mostSellingCourses
+            {mostSellingCourses
               ?.slice(0, 4)
               .map((course, i) => (
-                <Course_Card course={course} key={i} Height={"h-[400px]"} />
+                <CourseCard course={course} key={i} Height={"h-[400px]"} />
               ))}
           </div>
+        </div>
         </div>
       </div>
 

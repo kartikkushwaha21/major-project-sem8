@@ -17,14 +17,22 @@ export default function SidebarLink({ link, iconName }) {
     <NavLink
       to={link.path}
       onClick={() => dispatch(resetCourseState())}
-      className={`flex items-center gap-x-3 rounded-xl px-4 py-3 text-sm font-medium ${
+      className={`flex items-center gap-x-3 rounded-[20px] border px-4 py-3 text-base font-semibold ${
         matchRoute(link.path)
-          ? "bg-white text-indigo-600 shadow-[0_10px_30px_rgba(99,102,241,0.12)] ring-1 ring-indigo-100"
-          : "text-slate-500 hover:bg-white hover:text-slate-900"
+          ? "border-cyan-300/30 bg-[linear-gradient(135deg,_rgba(34,211,238,0.22)_0%,_rgba(59,130,246,0.18)_100%)] text-white shadow-[0_12px_30px_rgba(34,211,238,0.12)]"
+          : "border-white/10 bg-white/5 text-white hover:bg-white/10"
       } transition-all duration-200`}
     >
-      <Icon className="text-base" />
-      <span>{link.name}</span>
+      <span
+        className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+          matchRoute(link.path)
+            ? "bg-white/15 text-white"
+            : "bg-white/10 text-white"
+        }`}
+      >
+        <Icon className="text-base" />
+      </span>
+      <span className="tracking-[0.01em] text-white">{link.name}</span>
     </NavLink>
   )
 }

@@ -38,7 +38,10 @@ const [isCatalogOpen, setIsCatalogOpen] = useState(false);
       setLoading(true)
       try {
         const res = await apiConnector("GET", categories.CATEGORIES_API)
-        setSubLinks(res.data.data)
+        const categoryLinks = (res.data.data || []).filter(
+          (category) => category?.courses?.length > 0
+        )
+        setSubLinks(categoryLinks)
         console.log("hello" + res.data.data)
       } catch (error) {
         console.log("Could not fetch Categories.", error)

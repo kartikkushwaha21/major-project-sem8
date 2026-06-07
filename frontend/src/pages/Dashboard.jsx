@@ -16,10 +16,10 @@ function Dashboard() {
   }
 
   return (
-    <div className="relative flex min-h-[calc(100vh-3.5rem)]">
+    <div className="relative flex min-h-[calc(100vh-3.5rem)] bg-slate-950">
       <Sidebar />
-      <div className="h-[calc(100vh-3.5rem)] flex-1 overflow-auto">
-        <div className="mx-auto w-11/12 max-w-[1000px] py-10">
+      <div className="h-[calc(100vh-3.5rem)] flex-1 overflow-auto bg-[radial-gradient(circle_at_top_left,_rgba(30,64,175,0.2),_transparent_20%),radial-gradient(circle_at_top_right,_rgba(34,211,238,0.1),_transparent_16%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)]">
+        <div className="mx-auto w-11/12 max-w-[1180px] py-8 lg:py-10">
           <Outlet />
         </div>
       </div>

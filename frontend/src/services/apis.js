@@ -1,6 +1,8 @@
-const BASE_URL = process.env.REACT_APP_BACKEND_URL ;
-// process.env.REACT_APP_BACKEND_URL ;
-// http://localhost:4000/api/v1
+const envBaseUrl = process.env.REACT_APP_BACKEND_URL
+  ? process.env.REACT_APP_BACKEND_URL.replace(/^"(.*)"$/, "$1")
+  : ""
+
+const BASE_URL = envBaseUrl || "http://localhost:4000/api/v1"
 
 // AUTH ENDPOINTS
 export const endpoints = {
@@ -16,6 +18,7 @@ export const profileEndpoints = {
   GET_USER_DETAILS_API: BASE_URL + "/profile/getUserDetails",
   GET_USER_ENROLLED_COURSES_API: BASE_URL + "/profile/getEnrolledCourses",
   GET_INSTRUCTOR_DATA_API: BASE_URL + "/profile/instructorDashboard",
+  GET_INSTRUCTOR_EARNINGS_API: BASE_URL + "/profile/instructorEarnings",
 }
 
 // STUDENTS ENDPOINTS

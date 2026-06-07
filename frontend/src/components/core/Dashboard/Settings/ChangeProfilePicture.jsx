@@ -55,7 +55,7 @@ export default function ChangeProfilePicture() {
   }, [imageFile])
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] lg:p-8">
+    <section className="rounded-[30px] border border-slate-300 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] lg:p-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <img
@@ -68,7 +68,7 @@ export default function ChangeProfilePicture() {
             <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
               Profile Photo
             </p>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-950">
               Change Profile Picture
             </h2>
             <p className="max-w-xl text-sm leading-7 text-slate-600">

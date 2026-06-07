@@ -72,11 +72,15 @@ export function signUp(
         throw new Error(response.data.message)
       }
       toast.success("Signup Successful")
-      navigate("/login")
+      navigate(
+        accountType === "Instructor" ? "/login?role=instructor" : "/login"
+      )
     } catch (error) {
       console.log("SIGNUP API ERROR............", error)
       toast.error("Signup Failed")
-      navigate("/signup")
+      navigate(
+        accountType === "Instructor" ? "/signup?role=instructor" : "/signup"
+      )
     }
     dispatch(setLoading(false))
     toast.dismiss(toastId)
@@ -105,10 +109,16 @@ export function login(email, password, navigate) {
       const userImage = response.data?.user?.image
         ? response.data.user.image
         : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`
-      dispatch(setUser({ ...response.data.user, image: userImage }))
+      const userData = { ...response.data.user, image: userImage }
+      dispatch(setUser(userData))
       
       localStorage.setItem("token", JSON.stringify(response.data.token))
-      navigate("/dashboard/my-profile")
+      localStorage.setItem("user", JSON.stringify(userData))
+      navigate(
+        response.data.user.accountType === "Instructor"
+          ? "/dashboard/instructor"
+          : "/dashboard/my-profile"
+      )
     } catch (error) {
       console.log("LOGIN API ERROR............", error)
       toast.error("Login Failed")

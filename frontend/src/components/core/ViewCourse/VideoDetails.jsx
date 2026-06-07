@@ -25,6 +25,27 @@ const VideoDetails = () => {
   const [videoEnded, setVideoEnded] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const getYouTubeEmbedUrl = (url = "") => {
+    if (!url || typeof url !== "string") return null
+
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+      /(?:youtu\.be\/)([\w-]{11})/,
+      /(?:youtube\.com\/embed\/)([\w-]{11})/,
+    ]
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern)
+      if (match?.[1]) {
+        return `https://www.youtube-nocookie.com/embed/${match[1]}?rel=0`
+      }
+    }
+
+    return null
+  }
+
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(videoData?.videoUrl)
+
   useEffect(() => {
     ;(async () => {
       if (!courseSectionData.length) return
@@ -176,6 +197,48 @@ const VideoDetails = () => {
           alt="Preview"
           className="h-full w-full rounded-md object-cover"
         />
+      ) : youtubeEmbedUrl ? (
+        <div className="flex flex-col gap-4">
+          <div className="aspect-video overflow-hidden rounded-md bg-black">
+            <iframe
+              src={youtubeEmbedUrl}
+              title={videoData?.title || "Course video"}
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {!completedLectures.includes(subSectionId) && (
+              <IconBtn
+                disabled={loading}
+                onclick={() => handleLectureCompletion()}
+                text={!loading ? "Mark As Completed" : "Loading..."}
+                customClasses="text-base px-4"
+              />
+            )}
+            {!isFirstVideo() && (
+              <button
+                disabled={loading}
+                onClick={goToPrevVideo}
+                className="blackButton"
+              >
+                Prev
+              </button>
+            )}
+            {!isLastVideo() && (
+              <button
+                disabled={loading}
+                onClick={goToNextVideo}
+                className="blackButton"
+              >
+                Next
+              </button>
+            )}
+          </div>
+        </div>
       ) : (
         <Player
           ref={playerRef}

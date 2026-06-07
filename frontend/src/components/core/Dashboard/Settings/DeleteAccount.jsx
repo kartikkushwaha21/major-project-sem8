@@ -18,7 +18,7 @@ export default function DeleteAccount() {
   }
 
   return (
-    <section className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.04)] lg:p-8">
+    <section className="rounded-[30px] border border-rose-300 bg-[linear-gradient(135deg,_#fff1f2_0%,_#ffe4e6_100%)] p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] lg:p-8">
       <div className="flex flex-col gap-5 md:flex-row md:items-start">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
           <FiTrash2 className="text-3xl" />
@@ -28,7 +28,7 @@ export default function DeleteAccount() {
           <p className="text-xs font-bold uppercase tracking-[0.24em] text-rose-500">
             Danger Zone
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-950">
             Delete Account
           </h2>
           <div className="max-w-2xl space-y-1 text-sm leading-7 text-slate-600">

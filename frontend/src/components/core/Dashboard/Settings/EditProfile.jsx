@@ -7,7 +7,7 @@ import { updateProfile } from "../../../../services/operations/SettingsAPI"
 const genders = ["Male", "Female", "Non-Binary", "Prefer not to say", "Other"]
 
 const inputClassName =
-  "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+  "w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none transition-all duration-200 placeholder:text-slate-500 focus:border-cyan-400 focus:bg-white focus:ring-4 focus:ring-cyan-100"
 
 export default function EditProfile() {
   const { user } = useSelector((state) => state.profile)
@@ -31,12 +31,12 @@ export default function EditProfile() {
 
   return (
     <form onSubmit={handleSubmit(submitProfileForm)}>
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] lg:p-8">
+      <section className="rounded-[30px] border border-slate-300 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] lg:p-8">
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
             Account Information
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-950">
             Profile Information
           </h2>
         </div>

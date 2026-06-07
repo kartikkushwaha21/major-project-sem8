@@ -1,5 +1,6 @@
 const Profile = require("../models/Profile")
 const CourseProgress = require("../models/CourseProgress")
+const Payment = require("../models/Payment")
 
 const Course = require("../models/Course")
 const User = require("../models/User")
@@ -210,7 +211,20 @@ exports.getEnrolledCourses = async (req, res) => {
 
 exports.instructorDashboard = async (req, res) => {
   try {
-    const courseDetails = await Course.find({ instructor: req.user.id })
+    const instructor = await User.findById(req.user.id).select(
+      "totalEarnings totalStudentsTaught firstName lastName email courses"
+    )
+    let courseDetails = await Course.find({ instructor: req.user.id }).sort({
+      createdAt: -1,
+    })
+
+    if (!courseDetails.length && instructor?.courses?.length) {
+      courseDetails = await Course.find({
+        _id: { $in: instructor.courses },
+      }).sort({
+        createdAt: -1,
+      })
+    }
 
     const courseData = courseDetails.map((course) => {
       const totalStudentsEnrolled = course.studentsEnroled.length
@@ -229,9 +243,126 @@ exports.instructorDashboard = async (req, res) => {
       return courseDataWithStats
     })
 
-    res.status(200).json({ courses: courseData })
+    res.status(200).json({
+      success: true,
+      courses: courseData,
+      summary: {
+        totalEarnings: instructor?.totalEarnings || 0,
+        totalStudentsTaught: instructor?.totalStudentsTaught || 0,
+        totalCourses: courseDetails.length,
+      },
+    })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ message: "Server Error" })
+    res.status(500).json({ success: false, message: "Server Error" })
+  }
+}
+
+exports.getInstructorEarnings = async (req, res) => {
+  try {
+    const instructorId = req.user.id
+    const instructor = await User.findById(instructorId).select("courses").lean()
+    const ownedCourseIds = new Set((instructor?.courses || []).map(String))
+
+    const verifiedPayments = await Payment.find({ status: "verified" })
+      .populate("user", "firstName lastName email")
+      .populate("courses", "courseName price instructor thumbnail")
+      .populate("instructorAllocations.instructor", "firstName lastName email")
+      .populate("instructorAllocations.course", "courseName price instructor thumbnail")
+      .sort({ verifiedAt: -1, createdAt: -1 })
+      .lean()
+
+    const transactions = []
+    let totalRevenue = 0
+    let totalEnrollments = 0
+
+    for (const payment of verifiedPayments) {
+      const instructorAllocations = (payment.instructorAllocations || []).filter(
+        (allocation) =>
+          String(allocation?.instructor?._id || allocation?.instructor) ===
+          String(instructorId)
+      )
+
+      if (instructorAllocations.length > 0) {
+        for (const allocation of instructorAllocations) {
+          const course = allocation.course
+
+          totalRevenue += Number(allocation?.amount || 0)
+          totalEnrollments += 1
+
+          transactions.push({
+            paymentId: payment.paymentId,
+            orderId: payment.orderId,
+            verifiedAt: payment.verifiedAt || payment.createdAt,
+            amount: Number(allocation?.amount || 0),
+            course: course
+              ? {
+                  _id: course._id,
+                  courseName: course.courseName,
+                  thumbnail: course.thumbnail,
+                }
+              : null,
+            student: payment.user
+              ? {
+                  _id: payment.user._id,
+                  firstName: payment.user.firstName,
+                  lastName: payment.user.lastName,
+                  email: payment.user.email,
+                }
+              : null,
+          })
+        }
+
+        continue
+      }
+
+      const instructorCourses = (payment.courses || []).filter((course) => {
+        const directMatch =
+          String(course?.instructor?._id || course?.instructor) ===
+          String(instructorId)
+        const ownedByUser = ownedCourseIds.has(String(course?._id))
+        return directMatch || ownedByUser
+      })
+
+      for (const course of instructorCourses) {
+        totalRevenue += Number(course?.price || 0)
+        totalEnrollments += 1
+
+        transactions.push({
+          paymentId: payment.paymentId,
+          orderId: payment.orderId,
+          verifiedAt: payment.verifiedAt || payment.createdAt,
+          amount: Number(course?.price || 0),
+          course: {
+            _id: course._id,
+            courseName: course.courseName,
+            thumbnail: course.thumbnail,
+          },
+          student: payment.user
+            ? {
+                _id: payment.user._id,
+                firstName: payment.user.firstName,
+                lastName: payment.user.lastName,
+                email: payment.user.email,
+              }
+            : null,
+        })
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalRevenue,
+        totalEnrollments,
+        transactions,
+      },
+    })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({
+      success: false,
+      message: "Could not fetch instructor earnings",
+    })
   }
 }

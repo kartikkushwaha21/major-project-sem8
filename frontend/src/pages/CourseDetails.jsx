@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react"
 import { BiInfoCircle } from "react-icons/bi"
 import { HiOutlineGlobeAlt } from "react-icons/hi"
-import { ReactMarkdown } from "react-markdown/lib/react-markdown"
+import ReactMarkdown from "react-markdown"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 
 import ConfirmationModal from "../components/Common/ConfirmationModal"
 import Footer from "../components/Common/Footer"
 import RatingStars from "../components/Common/RatingStars"
+import AIRecommendations from "../components/core/Catalog/AIRecommendations"
 import CourseAccordionBar from "../components/core/Course/CourseAccordionBar"
 import CourseDetailsCard from "../components/core/Course/CourseDetailsCard"
 import { formatDate } from "../services/formatDate"
+import { getAllCourses } from "../services/operations/courseDetailsAPI"
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI"
 import { BuyCourse } from "../services/operations/studentFeaturesAPI"
+import { getRecommendedCourses } from "../utils/courseRecommendations"
 import GetAvgRating from "../utils/avgRating";
 import Error from "./Error"
 
@@ -30,6 +33,7 @@ function CourseDetails() {
 
   // Declear a state to save the course details
   const [response, setResponse] = useState(null)
+  const [allCourses, setAllCourses] = useState([])
   const [confirmationModal, setConfirmationModal] = useState(null)
   useEffect(() => {
     // Calling fetchCourseDetails fucntion to fetch the details
@@ -43,6 +47,17 @@ function CourseDetails() {
       }
     })()
   }, [courseId])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const courseList = await getAllCourses()
+        setAllCourses(courseList || [])
+      } catch (error) {
+        console.log("Could not fetch course list")
+      }
+    })()
+  }, [])
 
   // console.log("response: ", response)
 
@@ -62,7 +77,7 @@ function CourseDetails() {
     setIsActive(
       !isActive.includes(id)
         ? isActive.concat([id])
-        : isActive.filter((e) => e != id)
+        : isActive.filter((e) => e !== id)
     )
   }
 
@@ -89,7 +104,6 @@ function CourseDetails() {
   }
 
   const {
-    _id: course_id,
     courseName,
     courseDescription,
     thumbnail,
@@ -98,9 +112,18 @@ function CourseDetails() {
     courseContent,
     ratingAndReviews,
     instructor,
-    studentsEnrolled,
+    studentsEnroled,
     createdAt,
+    category,
+    tag,
   } = response.data?.courseDetails
+
+  const recommendedCourses = getRecommendedCourses({
+    courses: allCourses,
+    baseCourse: response?.data?.courseDetails,
+    excludeCourseIds: [courseId],
+    limit: 4,
+  })
 
   const handleBuyCourse = () => {
     if (token) {
@@ -128,7 +151,7 @@ function CourseDetails() {
 
   return (
     <>
-      <div className={`relative w-full bg-richblack-800`}>
+      <div className={`relative w-full bg-richblack-900`}>
         {/* Hero Section */}
         <div className="mx-auto box-content px-4 lg:w-[1260px] 2xl:relative ">
           <div className="mx-auto grid min-h-[450px] max-w-maxContentTab justify-items-center py-8 lg:mx-0 lg:justify-items-start lg:py-0 xl:max-w-[810px]">
@@ -154,22 +177,25 @@ function CourseDetails() {
                 <RatingStars Review_Count={avgReviewCount} Star_Size={24} />
                 <span>{`(${ratingAndReviews?.length || 0} reviews)`}</span>
 
-                <span>{`${studentsEnrolled?.length ||0} students enrolled`}</span>
+                <span>{`${studentsEnroled?.length ||0} students enrolled`}</span>
               </div>
               <div>
                 <p className="">
-                  Created by Kartik Kushwaha
+                  Created by {instructor?.firstName} {instructor?.lastName}
                 </p>
               </div>
               <div className="flex flex-wrap gap-5 text-lg">
                 <p className="flex items-center gap-2">
-                  {" "}
-                  <BiInfoCircle /> Created at March 2025
+                  <BiInfoCircle /> Created at {formatDate(createdAt)}
                 </p>
                 <p className="flex items-center gap-2">
-                  {" "}
                   <HiOutlineGlobeAlt /> English
                 </p>
+                {category?.name && (
+                  <p className="rounded-full bg-white/10 px-3 py-1 text-sm text-richblack-5">
+                    {category.name}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-col w-full gap-4 py-4 border-y border-y-richblack-500 lg:hidden">
@@ -192,34 +218,40 @@ function CourseDetails() {
           </div>
         </div>
       </div>
-      <div className="mx-auto box-content px-4 text-start text-richblack-5 lg:w-[1260px]">
+      <div className="mx-auto box-content bg-slate-100 px-4 py-10 text-start text-slate-900 lg:w-[1260px]">
         <div className="mx-auto max-w-maxContentTab lg:mx-0 xl:max-w-[810px]">
           {/* What will you learn section */}
-          <div className="p-8 my-8 border border-richblack-600">
-            <p className="text-3xl font-semibold text-black" >What you'll learn</p>
-            <div className="mt-5 text-black">
+          <div className="my-8 rounded-[28px] border border-slate-200 bg-white p-8 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+            <p className="text-3xl font-semibold text-slate-900">What you'll learn</p>
+            <div className="mt-5 leading-7 text-slate-700">
               <ReactMarkdown>{whatYouWillLearn}</ReactMarkdown>
             </div>
           </div>
 
+          <AIRecommendations
+            title="AI picks related courses to buy next"
+            description="These recommendations are based on the course you are viewing, with scoring for shared category, overlapping skills, learner demand, review quality, and price similarity."
+            courses={recommendedCourses}
+            emptyMessage="Publish more courses to show related recommendations here."
+          />
+
           {/* Course Content Section */}
-          <div className="max-w-[830px] ">
+          <div className="max-w-[830px] rounded-[28px] border border-slate-200 bg-white p-8 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
             <div className="flex flex-col gap-3">
-              <p className="text-[28px] font-semibold text-black">Course Content</p>
+              <p className="text-[28px] font-semibold text-slate-900">Course Content</p>
               <div className="flex flex-wrap justify-between gap-2">
                 <div className="flex gap-2">
-                <span className="text-black">
-  {courseContent?.length || 0} {`section(s)`}
-</span>
-
-                  <span className="text-black">
+                  <span className="text-slate-700">
+                    {courseContent?.length || 0} {`section(s)`}
+                  </span>
+                  <span className="text-slate-700">
                     {totalNoOfLectures} {`lecture(s)`}
                   </span>
-                  <span className="text-black">{response.data?.totalDuration} total length</span>
+                  <span className="text-slate-700">{response.data?.totalDuration} total length</span>
                 </div>
                 <div>
                   <button
-                    className="font-bold text-caribbeangreen-50"
+                    className="font-bold text-indigo-700"
                     onClick={() => setIsActive([])}
                   >
                     Collapse all sections
@@ -229,7 +261,7 @@ function CourseDetails() {
             </div>
 
             {/* Course Details Accordion */}
-            <div className="py-4">
+            <div className="py-4 space-y-4">
               {courseContent?.map((course, index) => (
                 <CourseAccordionBar
                   course={course}
@@ -241,19 +273,37 @@ function CourseDetails() {
             </div>
 
             {/* Author Details */}
-            <div className="py-4 mb-12">
-              <p className="text-[28px] font-semibold text-black">Author</p>
+            <div className="mb-12 py-4">
+              <p className="text-[28px] font-semibold text-slate-900">Author</p>
               <div className="flex items-center gap-4 py-4">
                 <img
-                  src="https://api.dicebear.com/5.x/initials/svg?seed=Kartik%20Kushwaha"
+                  src={`https://api.dicebear.com/5.x/initials/svg?seed=${encodeURIComponent(
+                    `${instructor?.firstName || ""} ${instructor?.lastName || ""}`.trim() ||
+                      "Instructor"
+                  )}`}
                   alt="Author"
                   className="object-cover rounded-full h-14 w-14"
                 />
-                <p className="text-lg text-black">Kartik Kushwaha</p>
+                <p className="text-lg font-semibold text-slate-900">
+                  {instructor?.firstName} {instructor?.lastName}
+                </p>
               </div>
-              <p className="text-richblack-50">
-                Full-stack developer and educator specializing in modern web technologies.
+              <p className="text-slate-700">
+                {instructor?.additionalDetails?.about ||
+                  "Experienced educator helping learners build practical, job-ready skills through project-driven lessons."}
               </p>
+              {!!tag?.length && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tag.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -6,12 +6,15 @@ import { RxCountdownTimer } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
 import { sendOtp, signUp } from "../services/operations/authAPI";
 import { useNavigate } from "react-router-dom";
+import { ACCOUNT_TYPE } from "../utils/constants";
 
 function VerifyEmail() {
   const [otp, setOtp] = useState("");
   const { signupData, loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isInstructorFlow =
+    signupData?.accountType === ACCOUNT_TYPE.INSTRUCTOR;
 
   useEffect(() => {
     // Only allow access of this route when user has filled the signup form
@@ -88,14 +91,14 @@ function VerifyEmail() {
             </button>
           </form>
           <div className="mt-6 flex items-center justify-between">
-            <Link to="/signup">
+            <Link to={isInstructorFlow ? "/signup?role=instructor" : "/signup"}>
               <p className="text-richblack-5 flex items-center gap-x-2">
                 <BiArrowBack /> Back To Signup
               </p>
             </Link>
             <button
               className="flex items-center text-blue-100 gap-x-2"
-              onClick={() => dispatch(sendOtp(signupData.email))}
+              onClick={() => dispatch(sendOtp(signupData.email, navigate))}
             >
               <RxCountdownTimer />
               Resend it

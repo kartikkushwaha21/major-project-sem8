@@ -3,19 +3,15 @@ import { toast } from "react-hot-toast"
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
 import { useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import { Link, matchPath, useLocation } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 import { sendOtp } from "../../../services/operations/authAPI"
 import { setSignupData } from "../../../slices/authSlice"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
-import Tab from "../../Common/Tab"
 
-function SignupForm() {
+function SignupForm({ accountType = ACCOUNT_TYPE.STUDENT }) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
-  // student or instructor
-  const [accountType, setAccountType] = useState(ACCOUNT_TYPE.STUDENT)
 
   const[passAlert, setPassAlert] = useState("");
 
@@ -75,27 +71,15 @@ function SignupForm() {
       password: "",
       confirmPassword: "",
     })
-    setAccountType(ACCOUNT_TYPE.STUDENT)
   }
-
-  // data to pass to Tab component
-  const tabData = [
-    {
-      id: 1,
-      tabName: "Student",
-      type: ACCOUNT_TYPE.STUDENT,
-    },
-    {
-      id: 2,
-      tabName: "Instructor",
-      type: ACCOUNT_TYPE.INSTRUCTOR,
-    },
-  ]
 
   return (
     <div>
-      {/* Tab */}
-      <Tab tabData={tabData} field={accountType} setField={setAccountType} />
+      <div className="mb-4 rounded-[8px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
+        {accountType === ACCOUNT_TYPE.INSTRUCTOR
+          ? "This signup will create an instructor account after email OTP verification."
+          : "This signup will create a student account after email OTP verification."}
+      </div>
       {/* Form */}
       <form onSubmit={handleOnSubmit} className="flex w-full flex-col gap-y-4">
         <div className="flex gap-x-4">
@@ -203,7 +187,10 @@ function SignupForm() {
       </form>
       <div className="mt-4 text-center text-sm text-richblack-900">
   Already have an account?{" "}
-  <Link to="/login" className="font-semibold text-caribbeangreen-200 hover:underline">
+  <Link
+    to={accountType === ACCOUNT_TYPE.INSTRUCTOR ? "/login?role=instructor" : "/login"}
+    className="font-semibold text-caribbeangreen-200 hover:underline"
+  >
     Log in
   </Link>
 </div>

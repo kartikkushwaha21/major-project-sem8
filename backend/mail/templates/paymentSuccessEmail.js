@@ -1,4 +1,4 @@
-exports.paymentSuccessEmail = (name) => {
+exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
   return `<!DOCTYPE html>
     <html>
     
@@ -72,8 +72,10 @@ exports.paymentSuccessEmail = (name) => {
             <div class="message">Course Payment Confirmation</div>
             <div class="body">
                 <p>Dear ${name},</p>
-                <p>We have received paymen</p>.
-              
+                <p>We have received your payment successfully.</p>
+                <p><span class="highlight">Amount:</span> INR ${amount / 100}</p>
+                <p><span class="highlight">Order ID:</span> ${orderId}</p>
+                <p><span class="highlight">Payment ID:</span> ${paymentId}</p>
             </div>
             <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a
                     href="mailto:info@LEARN & IMPROVE.com">info@LEARN & IMPROVE.com</a>. We are here to help!</div>

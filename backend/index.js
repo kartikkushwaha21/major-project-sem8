@@ -14,6 +14,8 @@ const { cloudinaryConnect } = require("./config/cloudinary")
 const fileUpload = require("express-fileupload")
 const { default: mongoose } = require("mongoose")
 const { createDummyUser } = require("./controllers/Auth")
+const { seedDefaultCategories } = require("./utils/seedDefaultData")
+const { seedSampleCourses } = require("./utils/seedSampleData")
 const PORT=process.env.PORT;
 // Middlewares
 app.use(express.json())
@@ -28,8 +30,14 @@ app.listen(PORT,()=>{
 })
 const dbConnect=require('./config/database');
 dbConnect().then(() => {
+    seedDefaultCategories().catch((error) => {
+        console.error("Default category seed failed", error);
+    });
     // Create dummy user after database connection
     createDummyUser();
+    seedSampleCourses().catch((error) => {
+        console.error("Sample course seed failed", error);
+    });
 });
 
 //routes

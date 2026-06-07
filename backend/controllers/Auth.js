@@ -9,6 +9,32 @@ const otpTemplate = require("../mail/templates/emailVerificationTemplate")
 const Profile = require("../models/Profile")
 require("dotenv").config()
 
+const generateUniqueOtp = async () => {
+  let otp = otpGenerator.generate(6, {
+    upperCaseAlphabets: false,
+    lowerCaseAlphabets: false,
+    specialChars: false,
+  })
+
+  let existingOtp = await Otp.findOne({ otp })
+
+  while (existingOtp) {
+    otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    })
+    existingOtp = await Otp.findOne({ otp })
+  }
+
+  return otp
+}
+
+const sendOtpEmail = async (email, otp, subject = "OTP Verification Email") => {
+  const emailResponse = await mailSender(email, subject, otpTemplate(otp))
+  console.log("Email sent successfully:", emailResponse.response)
+}
+
 // Function to create dummy user if not exists
 const createDummyUser = async () => {
   try {
@@ -42,7 +68,7 @@ const createDummyUser = async () => {
 module.exports.createDummyUser = createDummyUser
 exports.signup=async (req,res)=>{
     try{
-        const {firstName,lastName,email,password,confirmPassword,accountType,otp}=req.body;
+        const {firstName,lastName,email,password,confirmPassword,otp,accountType}=req.body;
         if(!firstName || !lastName || !email || !password || !confirmPassword || !otp){
             return res.status(400).json({
                 success:false,
@@ -63,12 +89,26 @@ exports.signup=async (req,res)=>{
             })
         }
 
+        const recentOtpRecords = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1)
+        if (!recentOtpRecords.length) {
+          return res.status(400).json({
+            success: false,
+            message: "OTP not found or expired. Please request a new OTP.",
+          })
+        }
+
+        if (recentOtpRecords[0].otp !== otp) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid OTP",
+          })
+        }
+
         //hashing password
         const hashedPassword = await bcrypt.hash(password, 10)
         console.log("Hashed password ",hashedPassword);
         // Create the user
-        let approved = ""
-        approved === "Instructor" ? (approved = false) : (approved = true)
+        const approved = true
 
         // Create the Additional Profile For User
         const profileDetails = await Profile.create({
@@ -77,12 +117,13 @@ exports.signup=async (req,res)=>{
           about: null,
           contactNumber: null,
         })
+        const normalizedAccountType = accountType === "Instructor" ? "Instructor" : "Student"
         const user = await User.create({
           firstName,
           lastName,
           email,
           password: hashedPassword,
-          accountType: accountType,
+          accountType: normalizedAccountType,
           approved: approved,
           additionalDetails: profileDetails._id,
           image: `https://api.dicebear.com/5.x/initials/svg?seed=${encodeURIComponent(firstName + " " + lastName)}`,
@@ -253,34 +294,14 @@ exports.sendotp = async (req, res) => {
       })
     }
 
-    var otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    })
-    const result = await Otp.findOne({ otp: otp })
-    console.log("Result is Generate OTP Func")
-    console.log("OTP", otp)
-    console.log("Result", result)
-    while (result) {
-      otp = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        lowerCaseAlphabets: false,
-        specialChars: false,
-      })
-    }
+    const otp = await generateUniqueOtp()
     const otpPayload = { email, otp }
     const otpBody = await Otp.create(otpPayload)
     console.log("OTP Body", otpBody)
 
     // Send email
     try {
-      const emailResponse = await mailSender(
-        email,
-        "OTP Verification Email",
-        otpTemplate(otp)
-      )
-      console.log("Email sent successfully:", emailResponse.response)
+      await sendOtpEmail(email, otp)
     } catch (error) {
       console.error("Error occurred while sending email:", error)
       return res.status(500).json({

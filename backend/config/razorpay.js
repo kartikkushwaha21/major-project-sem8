@@ -1,24 +1,44 @@
 const Razorpay = require("razorpay")
 
-const keyId = process.env.RAZORPAY_KEY
-const keySecret = process.env.RAZORPAY_SECRET
-
 const isPlaceholderValue = (value = "") =>
   !value || value.startsWith("your-razorpay-")
 
-const isConfigured =
-  !isPlaceholderValue(keyId) && !isPlaceholderValue(keySecret)
+exports.isDemoPaymentEnabled = () =>
+  String(process.env.DEMO_PAYMENT_MODE || "").toLowerCase() === "true"
 
-exports.instance = isConfigured
-  ? new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    })
-  : null
+const getRazorpayCredentials = () => {
+  const keyId = process.env.RAZORPAY_KEY
+  const keySecret = process.env.RAZORPAY_SECRET
 
-exports.getRazorpayKeyId = () => (isConfigured ? keyId : null)
+  return {
+    keyId,
+    keySecret,
+    isConfigured:
+      !isPlaceholderValue(keyId) && !isPlaceholderValue(keySecret),
+  }
+}
+
+exports.getRazorpayInstance = () => {
+  const { keyId, keySecret, isConfigured } = getRazorpayCredentials()
+
+  if (!isConfigured) {
+    return null
+  }
+
+  return new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret,
+  })
+}
+
+exports.getRazorpayKeyId = () => {
+  const { keyId, isConfigured } = getRazorpayCredentials()
+  return isConfigured ? keyId : null
+}
 
 exports.getRazorpayConfigError = () => {
+  const { isConfigured } = getRazorpayCredentials()
+
   if (isConfigured) {
     return null
   }

@@ -1,10 +1,14 @@
 const mongoose = require("mongoose")
 const coursesSchema = new mongoose.Schema({
   courseName: { 
-    type: String
+    type: String,
+    required: true,
+    trim: true,
  },
   courseDescription: { 
-    type: String
+    type: String,
+    required: true,
+    trim: true,
  },
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +32,8 @@ const coursesSchema = new mongoose.Schema({
   ],
   price: {
     type: Number,
+    required: true,
+    min: 0,
   },
   thumbnail: {
     type: String,
@@ -47,12 +53,19 @@ const coursesSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  sold: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
   instructions: {
     type: [String],
+    default: [],
   },
   status: {
     type: String,
     enum: ["Draft", "Published"],
+    default: "Draft",
   },
   createdAt: { type: Date, default: Date.now },
 })

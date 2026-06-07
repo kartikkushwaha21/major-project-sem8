@@ -26,7 +26,8 @@ export default function Instructor() {
   const { token } = useSelector((state) => state.auth)
   const { user } = useSelector((state) => state.profile)
   const [loading, setLoading] = useState(false)
-  const [instructorData, setInstructorData] = useState(null)
+  const [instructorData, setInstructorData] = useState([])
+  const [instructorSummary, setInstructorSummary] = useState(null)
   const [courses, setCourses] = useState([])
 
   useEffect(() => {
@@ -35,9 +36,8 @@ export default function Instructor() {
       const instructorApiData = await getInstructorData(token)
       const result = await fetchInstructorCourses(token)
 
-      if (instructorApiData?.length) {
-        setInstructorData(instructorApiData)
-      }
+      setInstructorData(instructorApiData?.courses || [])
+      setInstructorSummary(instructorApiData?.summary || null)
 
       if (result) {
         setCourses(result)
@@ -48,16 +48,14 @@ export default function Instructor() {
   }, [])
 
   const totalAmount =
-    instructorData?.reduce(
-      (acc, curr) => acc + curr.totalAmountGenerated,
-      0
-    ) || 0
+    instructorSummary?.totalEarnings ||
+    instructorData?.reduce((acc, curr) => acc + curr.totalAmountGenerated, 0) ||
+    0
 
   const totalStudents =
-    instructorData?.reduce(
-      (acc, curr) => acc + curr.totalStudentsEnrolled,
-      0
-    ) || 0
+    instructorSummary?.totalStudentsTaught ||
+    instructorData?.reduce((acc, curr) => acc + curr.totalStudentsEnrolled, 0) ||
+    0
 
   const publishedCourses = courses.filter(
     (course) => course.status === COURSE_STATUS.PUBLISHED
@@ -73,7 +71,7 @@ export default function Instructor() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-4">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-500">
-                Instructor Dashboard
+                Tutor Dashboard
               </p>
               <div className="space-y-3">
                 <h1 className="text-4xl font-semibold tracking-[-0.03em] text-slate-950">

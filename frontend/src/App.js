@@ -12,10 +12,13 @@ import AddCourse from "./components/core/Dashboard/AddCourse"
 import Cart from "./components/core/Dashboard/Cart"
 import EditCourse from "./components/core/Dashboard/EditCourse"
 import EnrolledCourses from "./components/core/Dashboard/EnrolledCourses"
+import Earnings from "./components/core/Dashboard/Earnings"
 import Instructor from "./components/core/Dashboard/Instructor"
 import MyCourses from "./components/core/Dashboard/MyCourses"
 import MyProfile from "./components/core/Dashboard/MyProfile"
 import Settings from "./components/core/Dashboard/Settings"
+import StudentDashboard from "./components/core/Dashboard/StudentDashboard"
+import StudentRecommendations from "./components/core/Dashboard/StudentRecommendations"
 import VideoDetails from "./components/core/ViewCourse/VideoDetails"
 import About from "./pages/About"
 import Catalog from "./pages/Catalog"
@@ -115,6 +118,7 @@ function App() {
           {user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
             <>
               <Route path="dashboard/instructor" element={<Instructor />} />
+              <Route path="dashboard/earnings" element={<Earnings />} />
               <Route path="dashboard/my-courses" element={<MyCourses />} />
               <Route path="dashboard/add-course" element={<AddCourse />} />
               <Route
@@ -125,6 +129,11 @@ function App() {
           )}
           {user?.accountType === ACCOUNT_TYPE.STUDENT && (
             <>
+              <Route path="dashboard/student" element={<StudentDashboard />} />
+              <Route
+                path="dashboard/recommendations"
+                element={<StudentRecommendations />}
+              />
               <Route
                 path="dashboard/enrolled-courses"
                 element={<EnrolledCourses />}

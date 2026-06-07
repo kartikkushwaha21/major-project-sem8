@@ -206,14 +206,20 @@ exports.getAllCourses = async (req, res) => {
       { status: "Published" },
       {
         courseName: true,
+        courseDescription: true,
         price: true,
         thumbnail: true,
+        category: true,
+        sold: true,
         instructor: true,
         ratingAndReviews: true,
-        studentsEnrolled: true,
+        studentsEnroled: true,
       }
     )
       .populate("instructor")
+      .populate("category")
+      .populate("ratingAndReviews")
+      .sort({ sold: -1, createdAt: -1 })
       .exec()
 
     return res.status(200).json({
@@ -421,9 +427,21 @@ exports.getInstructorCourses = async (req, res) => {
     const instructorId = req.user.id
 
     // Find all courses belonging to the instructor
-    const instructorCourses = await Course.find({
+    let instructorCourses = await Course.find({
       instructor: instructorId,
     }).sort({ createdAt: -1 })
+
+    if (!instructorCourses.length) {
+      const instructorDetails = await User.findById(instructorId).select(
+        "courses"
+      )
+
+      if (instructorDetails?.courses?.length) {
+        instructorCourses = await Course.find({
+          _id: { $in: instructorDetails.courses },
+        }).sort({ createdAt: -1 })
+      }
+    }
 
     // Return the instructor's courses
     res.status(200).json({

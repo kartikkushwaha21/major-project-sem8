@@ -15,6 +15,13 @@ export const sidebarLinks = [
     icon: "VscDashboard",
   },
   {
+    id: 8,
+    name: "Dashboard",
+    path: "/dashboard/student",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscDashboard",
+  },
+  {
     id: 3,
     name: "My Courses",
     path: "/dashboard/my-courses",
@@ -29,11 +36,25 @@ export const sidebarLinks = [
     icon: "VscAdd",
   },
   {
+    id: 6,
+    name: "Earnings",
+    path: "/dashboard/earnings",
+    type: ACCOUNT_TYPE.INSTRUCTOR,
+    icon: "VscGraphLine",
+  },
+  {
     id: 5,
     name: "Enrolled Courses",
     path: "/dashboard/enrolled-courses",
     type: ACCOUNT_TYPE.STUDENT,
     icon: "VscMortarBoard",
+  },
+  {
+    id: 9,
+    name: "AI Recommendations",
+    path: "/dashboard/recommendations",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscSparkle",
   },
   {
     id: 7,
