@@ -43,4 +43,4 @@ See backend routes in development_log.md.
 - Ratings/reviews
 - Contact form
 
-Built by Kartik Kushwaha.
+Built by Kartik Kushwaha. *** 
