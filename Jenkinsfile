@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    triggers {
+        // This polls SCM every minute as a backup to the Webhook
+        pollSCM('* * * * *')
+    }
+
     environment {
         DOCKER_HUB_REPO = 'kartik2111/ed'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
@@ -17,7 +22,7 @@ pipeline {
             steps {
                 script {
                     dir('backend') {
-                        sh "docker build -t ${DOCKER_HUB_REPO}:backend ."
+                        bat "docker build -t ${DOCKER_HUB_REPO}:backend ."
                     }
                 }
             }
@@ -27,7 +32,7 @@ pipeline {
             steps {
                 script {
                     dir('frontend') {
-                        sh "docker build -t ${DOCKER_HUB_REPO}:frontend . "
+                        bat "docker build -t ${DOCKER_HUB_REPO}:frontend ."
                     }
                 }
             }
@@ -37,9 +42,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
-                        sh "docker push ${DOCKER_HUB_REPO}:backend"
-                        sh "docker push ${DOCKER_HUB_REPO}:frontend"
+                        bat "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                        bat "docker push ${DOCKER_HUB_REPO}:backend"
+                        bat "docker push ${DOCKER_HUB_REPO}:frontend"
                     }
                 }
             }
@@ -47,21 +52,18 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    // This assumes kubectl is configured on the Jenkins agent
-                    sh "kubectl apply -f k8s/namespace.yaml"
-                    sh "kubectl apply -f k8s/secrets.yaml"
-                    sh "kubectl apply -f k8s/mongodb.yaml"
-                    sh "kubectl apply -f k8s/backend.yaml"
-                    sh "kubectl apply -f k8s/frontend.yaml"
-                }
+                bat "kubectl apply -f k8s/namespace.yaml"
+                bat "kubectl apply -f k8s/secrets.yaml"
+                bat "kubectl apply -f k8s/mongodb.yaml"
+                bat "kubectl apply -f k8s/backend.yaml"
+                bat "kubectl apply -f k8s/frontend.yaml"
             }
         }
     }
 
     post {
         always {
-            sh "docker logout"
+            bat "docker logout"
         }
     }
 }
