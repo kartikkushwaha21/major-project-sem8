@@ -146,3 +146,6 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/a
 ## Troubleshooting
 - **Pod Status**: If a pod is `ImagePullBackOff`, ensure you have pushed the images to Docker Hub and they are public (or configured ImagePullSecrets).
 - **Database Connection**: The backend is configured to connect to `mongodb-service:27017`. Ensure the MongoDB pod is running.
+
+
+## Thanks
