@@ -53,7 +53,7 @@ function App() {
 
   return (
     // bg-gray-100
-    <div className="flex min-h-screen w-screen flex-col bg-gray font-inter">
+    <div className="flex flex-col w-screen min-h-screen bg-gray font-inter">
       <Navbar />
       <Routes className="bg-gray-100">
         <Route path="/" element={<Home />} />
@@ -170,3 +170,6 @@ function App() {
 }
 
 export default App
+
+
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

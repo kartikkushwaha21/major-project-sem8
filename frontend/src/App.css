@@ -201,7 +201,7 @@ details > summary::-webkit-details-marker {
 
 /* For conditional coloring of icons in dashboard sidebar */
 .active-icon {
-  fill: #ffd60a !important;
+  fill: #d6c051 !important;
   color: #ffd60a !important;
 }
 
