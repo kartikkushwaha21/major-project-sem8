@@ -16,6 +16,7 @@ spec:
       containers:
       - name: backend
         image: kartik2111/ed:backend
+        imagePullPolicy: Always
         ports:
         - containerPort: 4000
         env:

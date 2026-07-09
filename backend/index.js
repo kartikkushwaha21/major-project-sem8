@@ -41,11 +41,23 @@ dbConnect().then(() => {
 });
 
 //routes
+
+//routes
 app.use("/api/v1/auth",userRoutes)
 app.use("/api/v1/profile",profileRoutes)
 app.use("/api/v1/course",courseRoutes)
 app.use("/api/v1/payment",paymentRoutes)
 app.use("/api/v1/reach",contactUsRoute)
+
+// Prometheus metrics setup
+const client = require('prom-client');
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ register: client.register });
+
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', client.register.contentType);
+    res.end(await client.register.metrics());
+});
 
 //default route
 app.get('/',(req,res)=>{
